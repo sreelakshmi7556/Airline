@@ -1,0 +1,173 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+void flightDetails();
+void bookTicket();
+
+int main()
+{
+    printf("                                                 SK AIRLINES\n");
+    printf("\n");
+    int option = 0;
+    while(option!=3){
+        printf("\n\nMAIN MENU\n1. Book Flight Ticket \n2. Display Flight Details\n3. Exit\nSelect the required option:");
+        scanf("%d", &option);
+        if(option == 1){
+            bookTicket();
+            
+        }
+        else if(option == 2){
+            printf("\n");
+            flightDetails();
+        }
+        else if(option == 3){
+            continue;
+        }
+        else{
+            printf(" Invalid option\n Please enter the correct option!\n");
+        }
+    }
+    
+}
+
+void flightDetails(){
+    FILE *fin=fopen("flights.txt","r");
+    char c;
+    while((c=fgetc(fin))!=EOF)
+        putchar(c);
+    fclose(fin);
+}
+
+void bookTicket(){
+    char Name[50],Email[150], Departure[60], Destination[60], Passport[50], Date[50];
+    int count;
+    long int phone;
+    printf("\nFill in the Details\n");
+    printf("Name:");
+    scanf("%s", Name);
+    printf("Passport no.:");
+    scanf("%s", Passport);
+    printf("Phone:");
+    scanf("%ld", &phone);
+    printf("Email:");
+    scanf("%s", Email);
+    printf("Departure:");
+    scanf("%s", Departure);
+    printf("Destination:");
+    scanf("%s", Destination);
+    FILE *fp = fopen("flightSelection.txt","r");
+    char start[60];
+    char end[60];
+    char flightid[60];
+    int flag=0;
+    while( fscanf(fp, "%s", flightid) != EOF )
+    {
+        fscanf(fp, "%s", start);
+        fscanf(fp, "%s", end);
+        if(strcmp(start,Departure) == 0 && strcmp(end,Destination) == 0){
+                flag=1;
+                break;
+            }
+        }
+        if(flag == 0){
+            printf("\nNo Flights available...\n");
+            return;
+        }
+        FILE *fp1 = fopen("flights.txt","r");
+        char buf[100];
+        printf("\nFlight Details\n%s ",flightid);
+        while(fscanf(fp1, "%s", buf) != EOF){
+            if(strcmp(flightid,buf) == 0){
+                for(int i=0;i<5;i++){
+                    fscanf(fp1, "%s", buf);
+                    printf("%s ",buf);
+                }
+                printf("\n");
+                break;
+            }    
+        }
+        printf("\n");
+        fclose(fp1);
+        char ch;
+        printf("Enter y to continue with this flight else enter any other character:");
+        scanf("%s",&ch);
+        if(ch != 'y'){
+            return;
+        }
+        printf("Date:");
+        scanf("%s", Date);
+        FILE *out=fopen("bookingData.txt","a");
+	    fputs(flightid,out);
+	    fputs(",",out);
+	    fputs(Name,out);
+	    fputs(",",out);
+	    fprintf(out, "%ld", phone);
+	    fputs(",",out);
+	    fputs(Email,out);
+	    fputs(",",out);
+	    fputs(Date,out);
+	    fputs(",",out);
+	    fputs(Passport,out);
+	    fputs(",",out);
+	    char ch1;
+        printf("Enter y to book for more people else enter any other character:");
+        scanf("%s",&ch1);
+        if(ch1 == 'y'){
+            printf("Number of People:");
+            scanf("%d", &count);
+	        printf("Enter the passport numbers of other Passengers\n");
+	        for(int i=0;i<count;i++){
+	            printf("Passenger %d:",i+1);
+	            scanf("%s",Passport);
+	            fputs(Passport,out); 
+	            fputs(",",out);
+	        }
+	    }
+    
+	    fputs("\n",out);
+	    fclose(out);
+	    int totalprice=0;
+	    FILE *fp3 = fopen("pricing.txt","r");
+        char p[50];
+        while(fscanf(fp3, "%s", p) != EOF){
+            if(strcmp(flightid,p) == 0){
+                fscanf(fp3, "%s", p);
+                totalprice = atoi(p);
+        
+                
+                break;
+            }    
+        }
+        fclose(fp3);
+        printf("%d",totalprice);
+        if(count>1){
+            totalprice = (count+1)*totalprice;
+        }   
+        else{
+            totalprice=totalprice;
+        }
+        printf("\n\n\n");
+        printf("*********************************************************************************************************\n");
+        printf("\n                                                 SK BOOKINGS\n");
+        printf("\nName:%s                        Phone:%ld                               Email:%s\n",Name,phone,Email);
+        FILE *fp4 = fopen("flights.txt","r");
+        char fd[50];
+        printf("\nFlight Details\n%s ",flightid);
+        while(fscanf(fp4, "%s", fd) != EOF){
+            if(strcmp(flightid,fd) == 0){
+                for(int i=0;i<4;i++){
+                    fscanf(fp1, "%s", buf);
+                    printf("%s ",buf);
+                }
+                printf("%s ",Date);
+                printf("\n");
+                break;
+            }    
+        }
+        
+        printf("\n\n\n");
+        printf("Total Amount:%d\n",totalprice);
+        printf("\n");
+        printf("*********************************************************************************************************\n");
+        printf("Thank you for booking with SK Airlines...\n");
+}
